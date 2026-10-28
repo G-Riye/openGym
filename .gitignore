@@ -67,3 +67,11 @@ web-error.log
 windows/Caddyfile
 windows/public-origin.txt
 windows/Tailscale-remote-plan.md
+
+# Personal Windows deployment docs and screenshots: the tracked general guide is
+# windows/README.md; everything below is this machine's record and stays local.
+windows/README-zh-CN.md
+windows/INSTALLATION.json
+windows/verification.json
+windows/profile-verification.json
+windows/*-preview.png
