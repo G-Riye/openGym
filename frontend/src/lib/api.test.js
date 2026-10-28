@@ -37,7 +37,7 @@ describe('webauthnOK', () => {
     expect(webauthnOK()).toBe(false)
   })
 
-  it.each(['192.168.50.47', '127.0.0.1', '[::1]', '[2001:db8::1]'])('rejects the IP host %s even when WebAuthn is exposed', host => {
+  it.each(['192.168.1.10', '127.0.0.1', '[::1]', '[2001:db8::1]'])('rejects the IP host %s even when WebAuthn is exposed', host => {
     window.happyDOM.setURL(`https://${host}:8443/`)
     setCapability(window, 'PublicKeyCredential', class PublicKeyCredential {})
     expect(webauthnOK()).toBe(false)
