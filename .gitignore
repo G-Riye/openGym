@@ -48,3 +48,17 @@ assets/tee/
 assets/bmc-cover*
 # scripts/pdf/render-samples.mjs output (npm run pdf:check)
 frontend/pdf-samples/
+
+# Local Windows deployment (windows/Start-openGym.ps1): runtime, logs, generated state and the
+# private CA storage stay on the machine. Only the scripts and docs are tracked.
+windows/runtime/
+windows/logs/
+windows/caddy-storage/
+windows/setup/
+windows/firewall-enabled.txt
+windows/processes.json
+windows/access.json
+windows/tailscale-*.json
+start-api.log
+web.log
+web-error.log

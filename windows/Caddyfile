@@ -1,0 +1,58 @@
+{
+    admin 127.0.0.1:23019
+    persist_config off
+    skip_install_trust
+    auto_https disable_redirects
+    storage file_system "C:/Users/46951/Documents/Codex/2026-10-16/c/outputs/openGym-1.4.1/windows/caddy-storage"
+    pki {
+        ca local {
+            name "openGym on this PC"
+            root_cn "openGym Local Root"
+        }
+    }
+    servers {
+        protocols h1 h2
+    }
+}
+
+https://192.168.50.47:8443 {
+    tls internal
+    bind 192.168.50.47 127.0.0.1
+    encode gzip
+    header {
+        X-Frame-Options DENY
+        X-Content-Type-Options nosniff
+        Referrer-Policy same-origin
+        Content-Security-Policy "frame-ancestors 'none'"
+    }
+    handle /api/* {
+        request_body {
+            max_size 48MB
+        }
+        reverse_proxy 127.0.0.1:30347 {
+            header_up -CF-Connecting-IP
+        }
+    }
+    handle_path /exercise-media/* {
+        root * "C:/Users/46951/Documents/Codex/2026-10-16/c/outputs/openGym-1.4.1/catalogue/media"
+        header Cross-Origin-Resource-Policy same-origin
+        header Cache-Control "public, max-age=2592000, immutable"
+        file_server
+    }
+    handle {
+        root * "C:/Users/46951/Documents/Codex/2026-10-16/c/outputs/openGym-1.4.1/frontend/dist"
+        header Cache-Control "no-cache, must-revalidate"
+        file_server
+    }
+}
+
+http://192.168.50.47:8080, http://localhost:8080 {
+    bind 192.168.50.47 127.0.0.1
+    root * "C:/Users/46951/Documents/Codex/2026-10-16/c/outputs/openGym-1.4.1/windows/setup"
+    header Cache-Control no-store
+    @certificate path /openGym-root.cer
+    header @certificate Content-Type application/x-x509-ca-cert
+    @iphoneProfile path /openGym-iphone.mobileconfig
+    header @iphoneProfile Content-Type application/x-apple-aspen-config
+    file_server
+}

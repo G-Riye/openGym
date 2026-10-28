@@ -1,0 +1,11 @@
+{
+  "result": "passed",
+  "http_status": 200,
+  "content_type": "application/x-apple-aspen-config",
+  "payload_count": 1,
+  "payload_type": "com.apple.security.root",
+  "certificate_bytes": 386,
+  "certificate_sha256": "FF:01:60:C3:DA:4B:AE:E6:89:EE:40:E9:98:D5:89:4A:8B:FB:12:AB:DB:07:BE:E1:02:6E:A0:F2:A9:AD:AC:20",
+  "existing_ca_preserved": true,
+  "iphone_device_tested": false
+}

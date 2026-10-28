@@ -1,0 +1,44 @@
+{
+  "version": "1.4.1",
+  "at": "2026-10-16T10:12:19.489Z",
+  "setup": "http://192.168.50.47:8080",
+  "app": "https://192.168.50.47:8443",
+  "checks": [
+    {
+      "name": "Chinese iPhone setup page",
+      "result": "passed"
+    },
+    {
+      "name": "iPhone certificate download matches local CA",
+      "result": "passed"
+    },
+    {
+      "name": "App HTTPS validates against the local CA (verification enabled)",
+      "result": "passed"
+    },
+    {
+      "name": "App JavaScript and stylesheet available",
+      "result": "passed"
+    },
+    {
+      "name": "API proxy, password sign-in and Chinese default",
+      "result": "passed"
+    },
+    {
+      "name": "Installable PWA manifest",
+      "result": "passed"
+    },
+    {
+      "name": "Built service worker available",
+      "result": "passed"
+    },
+    {
+      "name": "Exercise images and animations including range streaming",
+      "result": "passed"
+    },
+    {
+      "name": "Server data and CA private key are not public",
+      "result": "passed"
+    }
+  ]
+}
