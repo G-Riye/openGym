@@ -42,6 +42,10 @@ const PORT = +(process.env.PORT || 3000);
 const DATA = process.env.DATA_DIR || '/data';
 const RP_ID = process.env.RP_ID || 'localhost';
 const ORIGIN = process.env.ORIGIN || 'http://localhost:8080';
+// Additional origins allowed to make state-changing requests (e.g. the LAN address and the
+// public Cloudflare hostname at the same time). ORIGIN stays the canonical one: WebAuthn's
+// expectedOrigin, invite links and the VAPID subject keep using it.
+const EXTRA_ORIGINS = String(process.env.ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const RP_NAME = process.env.RP_NAME || 'openGym';
 // Admin dashboard (issue): admins are matched by uid (or the admin flag FIRST_USER_ADMIN sets);
 // INVITE_ONLY gates new signups behind a code the admin generates. Off by default, so a fresh
@@ -795,7 +799,7 @@ function csrfOk(req, key) {
   // Browsers put an Origin on every state-changing request and a page cannot suppress it, so the
   // forgery this exists to stop always carries one.
   if (!origin) return true;
-  return originsMatch(origin, ORIGIN);
+  return [ORIGIN, ...EXTRA_ORIGINS].some(o => originsMatch(origin, o));
 }
 
 /* ---------- challenge store (in-memory, 5 min TTL) ---------- */

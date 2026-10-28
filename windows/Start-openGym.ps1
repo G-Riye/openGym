@@ -105,10 +105,26 @@ $onboarding = $template.Replace('@@IP@@', $lanIp).Replace('@@ORIGIN@@', $origin)
 [IO.File]::WriteAllText((Join-Path $setupPath 'index.html'), $onboarding, $utf8)
 & $nodePath (Join-Path $PSScriptRoot 'make-qr.mjs') $setupUrl (Join-Path $setupPath 'phone-setup-qr.png')
 if ($LASTEXITCODE -ne 0) { throw 'Could not generate the iPhone setup QR code.' }
+# The public HTTPS entry (a Cloudflare Tunnel hostname in windows\public-origin.txt) is the
+# canonical origin when it is configured: WebAuthn takes its hostname as RP_ID and browser writes
+# must present it. The LAN address stays usable through ORIGINS (a comma-separated extra list).
+$publicOrigin = ''
+$publicOriginFile = Join-Path $PSScriptRoot 'public-origin.txt'
+if (Test-Path -LiteralPath $publicOriginFile) {
+    $publicOrigin = (Get-Content -LiteralPath $publicOriginFile -Raw).Trim().TrimEnd('/')
+}
+if ($publicOrigin -and ($publicOrigin -match '^https://[A-Za-z0-9.-]+(:[0-9]+)?$')) {
+    $env:ORIGIN = $publicOrigin
+    $env:RP_ID = ([Uri]$publicOrigin).Host
+    $env:ORIGINS = $origin
+} else {
+    $publicOrigin = ''
+    $env:ORIGIN = $origin
+    $env:RP_ID = $lanIp
+    $env:ORIGINS = ''
+}
 $env:PORT = '30347'
 $env:DATA_DIR = Join-Path $installRoot 'data'
-$env:RP_ID = $lanIp
-$env:ORIGIN = $origin
 $env:RP_NAME = 'openGym'
 $env:PASSWORD_LOGIN = '1'
 $env:DEFAULT_LANG = 'zh'
@@ -116,6 +132,9 @@ $env:FIRST_USER_ADMIN = '1'
 $env:ALLOW_GUEST = '0'
 $env:TRUST_PROXY = '1'
 $env:COACH_DISABLED = '0'
+# The VAPID contact stays the LAN URL: Apple accepted this exact https subject when the iPhone
+# subscription was tested, and the subject is only a contact string, not the push origin.
+$env:VAPID_SUBJECT = $origin
 $processRecords = @()
 try {
     $apiArguments = '"' + (Join-Path $PSScriptRoot 'start-api.mjs') + '"'
@@ -147,12 +166,13 @@ try {
     if (-not $ready) { throw 'The servers did not become ready. See windows\logs.' }
     $fingerprint = & $nodePath (Join-Path $PSScriptRoot 'make-iphone-profile.mjs') $rootCert $setupPath
     if ($LASTEXITCODE -ne 0) { throw 'Could not export the iPhone certificate profile.' }
-    $access = [ordered]@{ version='1.4.3'; ip=$lanIp; setup=$setupUrl; app=$origin; certificate_sha256=$fingerprint; started=(Get-Date).ToString('o') }
+    $access = [ordered]@{ version='1.4.3'; ip=$lanIp; setup=$setupUrl; app=$origin; public=$publicOrigin; certificate_sha256=$fingerprint; started=(Get-Date).ToString('o') }
     [IO.File]::WriteAllText((Join-Path $PSScriptRoot 'access.json'), ($access | ConvertTo-Json), $utf8)
     Write-Host ''
     Write-Host 'openGym 1.4.3 is running.'
     Write-Host "On your iPhone, open Safari: $setupUrl"
     Write-Host "App after certificate setup: $origin"
+    if ($publicOrigin) { Write-Host "Public (Cloudflare Tunnel): $publicOrigin" }
     Write-Host 'Keep this computer on and on the same home network.'
     Write-Host 'If the phone cannot connect, run Allow-iPhone.cmd and accept the Windows prompt.'
     if (-not $NoBrowser) { Start-Process 'http://localhost:8080' }

@@ -24,9 +24,39 @@
 
 设置页中的 HTTPS 按钮会使用启动程序当前检测到的电脑地址。请从该按钮进入后再添加主屏幕图标。
 
+## 公网访问：Cloudflare Tunnel（2026-10-29 起）
+
+手机不再需要装 Tailscale，也不依赖动态 IPv6 或 DDNS：本机用出站连接把两个域名接到 Cloudflare，
+Https 证书由 Cloudflare 自动签发，电脑 IP 怎么变都不影响。
+
+| 用途 | 地址 | 指向本机 |
+|---|---|---|
+| openGym App / PWA | `https://gym.469510353.xyz` | `127.0.0.1:8081`（带 64 位令牌门） |
+| ChatGPT MCP 连接器 | `https://mcp.469510353.xyz` | `127.0.0.1:8787`（token 在路径里） |
+
+- **首次打开 PWA**：浏览器打开 `https://gym.469510353.xyz/?t=<chatgpt\secrets\app-token 的内容>`，
+  令牌会写成 cookie 并跳转；然后在 Safari「分享 → 添加到主屏幕」。换到这个新域名后需要重新添加一次，
+  并在 openGym「设置 → 通知」重新打开推送（新域名是新的推送订阅）。
+- **原生 App**：地址填 `gym.469510353.xyz`（默认 https、443），配对码仍然在浏览器「设置 → 账户 →
+  配对手机 App」生成。App 的 `/api/*`、`/exercise-media/*` 已在 app-proxy 里放行（Bearer / 配对码 /
+  预检 / health / config），浏览器 UI 仍然需要令牌。
+- **ChatGPT**：把自定义连接器 URL 改成 `https://mcp.469510353.xyz/mcp/<chatgpt\secrets\mcp-token 的内容>`。
+- **服务器 ORIGIN**：服务端现在以公网域名为准（`windows\public-origin.txt`），`ORIGINS` 额外允许
+  家里 `https://192.168.50.47:8443` 继续登录和写入；通行密钥只在域名下可用，局域网 IP 仍用密码。
+- **日常命令**（在 `chatgpt` 目录）：
+  - 启动/切换：`powershell -ExecutionPolicy Bypass -File scripts\tunnel.ps1 -Mode cloudflare`
+  - 状态：`... -Mode status`；停止：`... -Mode stop`
+  - 隧道第一次配置：`scripts\setup-cloudflare.ps1`（已在本机执行过，配置在 `store\cloudflare.json` 与
+    `store\cloudflared.yml`；`cloudflared` 已登录过 Cloudflare，证书在 `C:\Users\46951\.cloudflared\cert.pem`）。
+  - `Start.cmd` 会按 `store\tunnel-mode.txt`（现在是 `cloudflare`）自动拉起隧道。
+- 旧的 Tailscale Funnel 已重置；`tailscale funnel status` 显示 `No serve config`。Tailscale 仍可用于别的事情，
+  但 openGym 与 MCP 已经不走它。若之后要换域名：改 `store\cloudflare.json`、`windows\public-origin.txt`，
+  重跑 `setup-cloudflare.ps1` 和 `tunnel.ps1 -Mode cloudflare`，再改 ChatGPT 的连接器 URL。
+
 ## 日常使用与离线记录
 
-外出访问使用家庭路由器 `AC86U-Home` 已发布的 Tailscale `192.168.50.0/24` 子网路由。手机连接 Tailscale 后访问 `https://192.168.50.47:8443`，无需电脑另行发布 `/32` 路由。当前路由器 Exit Node 保持关闭，手机 Exit Node 选“无 / None”。电脑端检查已通过；2026-10-16，用户确认 iPhone 使用蜂窝网络可以通过原网址正常打开并登录。详细状态见同目录 `Tailscale-remote-plan.md`。
+现在的主要入口是上面的公网域名（手机 4G/5G 直接可用）。家里也仍可走局域网 `https://192.168.50.47:8443`；
+Tailscale 不再是必需项（此前通过 `AC86U-Home` 发布的 `192.168.50.0/24` 子网路由仍然有效，仅作备用）。
 
 - 电脑开机、openGym 运行，且 iPhone 能通过家庭 Wi-Fi 或 Tailscale 子网路由连接到电脑时，可以访问服务器并同步训练数据。外出时家庭路由器的 Tailscale 也须保持在线。
 - 首次请在电脑可连接时打开并使用 openGym，让页面和所需内容缓存下来。之后可以记录离线训练，连接恢复后再同步；首次没有缓存的页面或动作媒体可能仍需网络。
@@ -83,11 +113,12 @@ IP 地址不能作为通行密钥所需的有效域名。这套局域网部署�
 
 纯网页在 iOS 后台定时响铃做不到（后台网页 JS 会被挂起），所以只能选 A 或 B。
 
-## 版本与回滚（2026-10-28 升级）
+## 版本与回滚（2026-10-28 升级，2026-10-29 公网入口）
 
-- 当前版本：官方 upstream **v1.4.3**（2026-10-26）。本地补丁与部署脚本在 fork：`https://github.com/G-Riye/openGym`，分支 `local/1.4.3-gr.1`，标签 `v1.4.3-gr.1`。
+- 当前版本：官方 upstream **v1.4.3**（2026-10-26）。本地补丁与部署脚本在 fork：`https://github.com/G-Riye/openGym`，分支 `local/1.4.3-gr.1`，标签 `v1.4.3-gr.1`、`v1.4.3-gr.2`、**`v1.4.3-gr.3`**（多 Origin + Cloudflare 公网入口）。
+- 2026-10-29 的本地改动只有两处：`api/server.js` 支持 `ORIGINS`（额外允许的写入 Origin，默认是局域网地址；主 `ORIGIN` 改为公网域名，供 WebAuthn 使用），以及 `windows/Start-openGym.ps1` 读取 `windows/public-origin.txt`。
 - 升级前备份：`api-1.4.1.bak/`、`frontend/dist-1.4.1.bak/`，以及完整备份目录 `N:\DeepSeek Harness Workspace\backups\openGym-1.4.1-20261028-2023`。
-- 回滚：先停止 openGym，把两个 `.bak` 换回 `api/` 和 `frontend/dist/`，再重新启动。
+- 回滚：先停止 openGym，把两个 `.bak` 换回 `api/` 和 `frontend/dist/`，再重新启动；公网入口可先 `scripts\tunnel.ps1 -Mode stop`。
 
 ## 官方资料
 
