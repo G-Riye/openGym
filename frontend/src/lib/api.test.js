@@ -6,6 +6,7 @@ import { _setLangState } from './i18n-core.js'
 
 const originalPublicKeyCredential = window.PublicKeyCredential
 const originalCredentials = navigator.credentials
+const originalUrl = window.location.href
 
 function setCapability(target, property, value) {
   Object.defineProperty(target, property, { configurable: true, value })
@@ -14,6 +15,7 @@ function setCapability(target, property, value) {
 afterEach(() => {
   setCapability(window, 'PublicKeyCredential', originalPublicKeyCredential)
   setCapability(navigator, 'credentials', originalCredentials)
+  window.happyDOM.setURL(originalUrl)
 })
 
 describe('webauthnOK', () => {
@@ -33,6 +35,19 @@ describe('webauthnOK', () => {
     setCapability(window, 'PublicKeyCredential', undefined)
     setCapability(navigator, 'credentials', {})
     expect(webauthnOK()).toBe(false)
+  })
+
+  it.each(['192.168.50.47', '127.0.0.1', '[::1]', '[2001:db8::1]'])('rejects the IP host %s even when WebAuthn is exposed', host => {
+    window.happyDOM.setURL(`https://${host}:8443/`)
+    setCapability(window, 'PublicKeyCredential', class PublicKeyCredential {})
+    expect(webauthnOK()).toBe(false)
+  })
+
+  it.each(['localhost', 'gym.example.com'])('preserves WebAuthn on %s without the generic credentials API', host => {
+    window.happyDOM.setURL(`https://${host}:8443/`)
+    setCapability(window, 'PublicKeyCredential', class PublicKeyCredential {})
+    setCapability(navigator, 'credentials', undefined)
+    expect(webauthnOK()).toBe(true)
   })
 })
 

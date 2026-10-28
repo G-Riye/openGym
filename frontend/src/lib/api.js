@@ -15,7 +15,12 @@ export const bio = () => (IS_APPLE ? t('Face ID / Touch ID') : IS_ANDROID ? t('f
 // navigator.credentials: some browsers expose WebAuthn while that generic Credential Management
 // API check produces a false negative (notably Chrome on iOS). The real create/get calls still run
 // only after the user chooses a passkey action and surface any genuine browser error there.
-export const webauthnOK = () => typeof window.PublicKeyCredential !== 'undefined'
+// IP literals have no valid WebAuthn relying-party domain, even when the browser exposes the API.
+export const webauthnOK = () => {
+  const host = window.location.hostname
+  return typeof window.PublicKeyCredential !== 'undefined'
+    && !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host) && !host.includes(':')
+}
 
 // The paired mobile app (lib/remote.js) is the only caller of these — everywhere else stays on
 // same-origin cookies, so remoteBase/remoteToken stay empty and api() behaves exactly as before.
