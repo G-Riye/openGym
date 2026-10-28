@@ -147,10 +147,10 @@ try {
     if (-not $ready) { throw 'The servers did not become ready. See windows\logs.' }
     $fingerprint = & $nodePath (Join-Path $PSScriptRoot 'make-iphone-profile.mjs') $rootCert $setupPath
     if ($LASTEXITCODE -ne 0) { throw 'Could not export the iPhone certificate profile.' }
-    $access = [ordered]@{ version='1.4.1'; ip=$lanIp; setup=$setupUrl; app=$origin; certificate_sha256=$fingerprint; started=(Get-Date).ToString('o') }
+    $access = [ordered]@{ version='1.4.3'; ip=$lanIp; setup=$setupUrl; app=$origin; certificate_sha256=$fingerprint; started=(Get-Date).ToString('o') }
     [IO.File]::WriteAllText((Join-Path $PSScriptRoot 'access.json'), ($access | ConvertTo-Json), $utf8)
     Write-Host ''
-    Write-Host 'openGym 1.4.1 is running.'
+    Write-Host 'openGym 1.4.3 is running.'
     Write-Host "On your iPhone, open Safari: $setupUrl"
     Write-Host "App after certificate setup: $origin"
     Write-Host 'Keep this computer on and on the same home network.'

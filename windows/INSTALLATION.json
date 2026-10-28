@@ -1,29 +1,31 @@
 {
-  "app_version": "1.4.1",
-  "upstream_release": "https://github.com/DuarteSantos8/openGym/releases/tag/v1.4.1",
-  "source_archive_sha256": "D6C7EEDDC752E040934590D5CE7C12D57D38B3FDCE6ACF109077BAF27A52DDC6",
+  "app_version": "1.4.3",
+  "upstream_release": "https://github.com/DuarteSantos8/openGym/releases/tag/v1.4.3",
+  "upstream_commit": "7c8290c",
+  "local_fork": "https://github.com/G-Riye/openGym",
+  "local_branch": "local/1.4.3-gr.1",
+  "local_tag": "v1.4.3-gr.1",
+  "upgraded_from": "1.4.1",
+  "upgrade_time": "2026-10-28T20:35:00+08:00",
   "node_version": "24.19.0",
   "caddy_version": "2.11.7",
   "source_files_modified": true,
   "api_listen": "127.0.0.1:30347",
   "app_url": "https://192.168.50.47:8443",
   "iphone_setup_url": "http://192.168.50.47:8080",
-  "api_http_checks_passed": 9,
-  "browser_checks": [
-    "Chinese login screen",
-    "Password registration form without account creation",
-    "Service worker ready",
-    "Mobile viewport and setup layout"
-  ],
+  "api_health": { "ok": true, "users": 1, "writable": true },
   "restart_verified": true,
-  "windows_trust_store_modified": false,
-  "firewall_rule_enabled": false,
-  "pending_user_actions": [
-    "Run Allow-iPhone.cmd and approve Windows administrator prompt; previous operation was cancelled",
-    "Install and trust the local CA on iPhone",
-    "Create password profile and add to Home Screen"
+  "account_data_modified": false,
+  "kept": [
+    "data/ (db.json, state-A_TSVwovDJPLhN88.json, vapid.json, secret, uploads)",
+    "chatgpt/ (separate repository G-Riye/opengym-chatgpt-mcp)",
+    "windows/ deployment scripts and local CA storage"
   ],
-  "iphone_device_tested": false,
+  "rollback": [
+    "api-1.4.1.bak/",
+    "frontend/dist-1.4.1.bak/",
+    "N:/DeepSeek Harness Workspace/backups/openGym-1.4.1-20261028-2023/"
+  ],
   "ip_password_fix": {
     "reason": "IP addresses cannot be used as WebAuthn relying-party domains",
     "files": [
@@ -31,10 +33,10 @@
       "frontend/src/lib/api.test.js"
     ],
     "behavior": "IPv4 and IPv6 hosts use password login and registration; domain/localhost passkey capability preserved",
-    "unit_tests_passed": 30,
-    "test_files_passed": 3,
-    "deployed_browser_verified": true,
-    "account_data_modified": false,
-    "time": "2026-10-16T13:48:28.3786806+08:00"
-  }
+    "unit_tests_passed": 25
+  },
+  "not_verified_on_device": [
+    "iOS notification banner in the background and on the lock screen",
+    "App Store app pairing with this 1.4.3 server"
+  ]
 }

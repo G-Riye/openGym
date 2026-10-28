@@ -1,6 +1,6 @@
-# openGym 1.4.1：Windows 与 iPhone 使用说明
+# openGym 1.4.3：Windows 与 iPhone 使用说明
 
-这个目录把官方 openGym 1.4.1 作为网页 App（PWA）运行在你的 Windows 电脑上。iPhone 通过同一 Wi-Fi 访问，可以添加到主屏幕。界面默认使用中文，账户使用用户名和密码登录。
+这个目录把官方 openGym 1.4.3 作为网页 App（PWA）运行在你的 Windows 电脑上。iPhone 通过同一 Wi-Fi 访问，可以添加到主屏幕。界面默认使用中文，账户使用用户名和密码登录。
 
 ## 在电脑上启动
 
@@ -65,10 +65,34 @@ IP 地址不能作为通行密钥所需的有效域名。这套局域网部署�
 
 先按上述步骤安装并信任本机证书，再打开当前 HTTPS 地址，使用原用户名和密码登录。服务器上的已同步数据仍保存在项目的 `data` 中。
 
+## 休息结束时在 iPhone 后台或锁屏收到通知
+
+两条路，服务器端都已验证可用：
+
+**A. 继续用主屏幕 PWA（Web Push）**
+
+- 前提：iOS 16.4 或更高；必须用 `https://192.168.50.47:8443` 添加到主屏幕；在 openGym「设置 → 通知」里打开推送；iOS「设置 → 通知 → openGym」允许通知，并关闭「静音投递」。
+- 机制：休息开始时手机把结束时间交给服务器，到点由服务器发 Web Push；App 退到后台或被系统挂起也能收到。
+- 电脑需要保持开机并运行 openGym，因为推送由这台电脑发出。
+
+**B. 官方 iPhone App（1.4.2 起上架 App Store，推荐）**
+
+- App Store 搜索「openGym: Workout Tracker」，或打开 https://apps.apple.com/app/id6822275400 （免费，中国区可下载，iOS 15.5 及以上）。
+- 首次打开选择「连接到我的服务器」，在电脑浏览器打开 `https://192.168.50.47:8443`，进入「设置 → 账户 → 配对手机 App」取一次性配对码（5 分钟有效），在手机里输入服务器地址和配对码。
+- 休息提醒用 iOS 本地通知：后台、锁屏都会响，并支持灵动岛和 Apple Watch；不依赖电脑发推送。
+
+纯网页在 iOS 后台定时响铃做不到（后台网页 JS 会被挂起），所以只能选 A 或 B。
+
+## 版本与回滚（2026-10-28 升级）
+
+- 当前版本：官方 upstream **v1.4.3**（2026-10-26）。本地补丁与部署脚本在 fork：`https://github.com/G-Riye/openGym`，分支 `local/1.4.3-gr.1`，标签 `v1.4.3-gr.1`。
+- 升级前备份：`api-1.4.1.bak/`、`frontend/dist-1.4.1.bak/`，以及完整备份目录 `N:\DeepSeek Harness Workspace\backups\openGym-1.4.1-20261028-2023`。
+- 回滚：先停止 openGym，把两个 `.bak` 换回 `api/` 和 `frontend/dist/`，再重新启动。
+
 ## 官方资料
 
-- [openGym 1.4.1 正式发布](https://github.com/DuarteSantos8/openGym/releases/tag/v1.4.1)
-- [官方 iPhone / 移动端说明](https://github.com/DuarteSantos8/openGym/blob/v1.4.1/docs/MOBILE.md#iphone--whats-actually-possible)
-- [官方密码登录说明](https://github.com/DuarteSantos8/openGym/blob/v1.4.1/docs/SELF_HOSTING.md#password-sign-in-optional)
+- [openGym 1.4.3 正式发布](https://github.com/DuarteSantos8/openGym/releases/tag/v1.4.3)
+- [官方 iPhone / 移动端说明](https://github.com/DuarteSantos8/openGym/blob/v1.4.3/docs/MOBILE.md)
+- [官方密码登录说明](https://github.com/DuarteSantos8/openGym/blob/v1.4.3/docs/SELF_HOSTING.md#password-sign-in-optional)
 - [Apple：信任手动安装的证书](https://support.apple.com/zh-cn/102390)
 - [Apple：安装配置描述文件](https://support.apple.com/zh-cn/102400)
