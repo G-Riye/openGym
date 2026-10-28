@@ -4,7 +4,7 @@
   "upstream_commit": "7c8290c",
   "local_fork": "https://github.com/G-Riye/openGym",
   "local_branch": "local/1.4.3-gr.1",
-  "local_tag": "v1.4.3-gr.3",
+  "local_tag": "v1.4.3-gr.4",
   "upgraded_from": "1.4.1",
   "upgrade_time": "2026-10-28T20:35:00+08:00",
   "public_entry_time": "2026-10-29T06:15:00+08:00",
@@ -12,48 +12,46 @@
   "caddy_version": "2.11.7",
   "source_files_modified": true,
   "api_listen": "127.0.0.1:30347",
-  "app_url": "https://192.168.50.47:8443",
-  "public_url": "https://gym.469510353.xyz",
-  "public_mcp_url": "https://mcp.469510353.xyz",
-  "iphone_setup_url": "http://192.168.50.47:8080",
+  "app_url": "https://<lan-ip>:8443",
+  "public_url": "https://gym.<your-domain>",
+  "public_mcp_url": "https://mcp.<your-domain>",
+  "iphone_setup_url": "http://<lan-ip>:8080",
   "tunnel": {
     "mode": "cloudflare",
     "name": "opengym",
-    "id": "dce9d291-4596-49ad-80fd-3ddd05223d81",
     "config": "chatgpt/store/cloudflared.yml",
     "hosts": {
-      "gym.469510353.xyz": "http://127.0.0.1:8081",
-      "mcp.469510353.xyz": "http://127.0.0.1:8787"
+      "gym.<your-domain>": "http://127.0.0.1:8081",
+      "mcp.<your-domain>": "http://127.0.0.1:8787"
     },
     "tailscale_funnel": "reset (No serve config)"
   },
   "origin": {
-    "primary": "https://gym.469510353.xyz",
-    "extra": ["https://192.168.50.47:8443"],
-    "rp_id": "gym.469510353.xyz",
-    "vapid_subject": "https://192.168.50.47:8443"
+    "primary": "https://gym.<your-domain>",
+    "extra": ["https://<lan-ip>:8443"],
+    "rp_id": "gym.<your-domain>",
+    "vapid_subject": "https://<lan-ip>:8443"
   },
   "api_health": { "ok": true, "users": 1, "writable": true },
   "verified": [
     "PUT /api/data with the public Origin -> 401 (accepted, not 403)",
     "PUT /api/data with the LAN Origin -> 401 (accepted, not 403)",
     "PUT /api/data with an unknown Origin -> 403 origin-mismatch",
-    "https://gym.469510353.xyz/?t=<app-token> -> 302 + cookie, then /sw.js and /manifest.json 200",
+    "https://gym.<your-domain>/?t=<app-token> -> 302 + cookie, then /sw.js and /manifest.json 200",
     "GET /api/health and /api/config without the app token -> 200 (native app allowlist)",
     "POST /api/pair/redeem through the proxy -> 400 pair-invalid (reaches the API)",
     "OPTIONS /api/data with Origin capacitor://localhost -> 204 with CORS headers",
     "GET /exercise-media/... without the token -> 200",
-    "MCP initialize + tools/list through https://mcp.469510353.xyz -> 200, connector 1.4.4"
+    "MCP initialize + tools/list through https://mcp.<your-domain> -> 200"
   ],
   "kept": [
-    "data/ (db.json, state-A_TSVwovDJPLhN88.json, vapid.json, secret, uploads)",
+    "data/ (db.json, per-user state, vapid.json, secret, uploads)",
     "chatgpt/ (separate repository G-Riye/opengym-chatgpt-mcp)",
     "windows/ deployment scripts and local CA storage"
   ],
   "rollback": [
     "api-1.4.1.bak/",
-    "frontend/dist-1.4.1.bak/",
-    "N:/DeepSeek Harness Workspace/backups/openGym-1.4.1-20261028-2023/"
+    "frontend/dist-1.4.1.bak/"
   ],
   "ip_password_fix": {
     "reason": "IP addresses cannot be used as WebAuthn relying-party domains",
@@ -63,9 +61,5 @@
     ],
     "behavior": "IPv4 and IPv6 hosts use password login and registration; the public domain keeps passkeys",
     "unit_tests_passed": 25
-  },
-  "not_verified_on_device": [
-    "iPhone App Store app pairing against https://gym.469510353.xyz",
-    "PWA notification after re-adding from the public origin"
-  ]
+  }
 }
